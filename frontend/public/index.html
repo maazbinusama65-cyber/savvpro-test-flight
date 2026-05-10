@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlightHub — Travel Agency Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0f1a;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    #1e2d45;
+      --accent:    #3b82f6;
+      --accent2:   #06b6d4;
+      --success:   #10b981;
+      --danger:    #ef4444;
+      --warning:   #f59e0b;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --white:     #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      padding: 1rem 0;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .brand span { color: var(--accent2); }
+    nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 1.2rem 0.4rem;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    nav button:hover, nav button.active {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    /* ── SECTIONS ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── SEARCH FORM ── */
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 0.6rem 0.8rem;
+      transition: border-color .2s;
+      outline: none;
+    }
+    .field input:focus, .field select:focus { border-color: var(--accent); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary  { background: var(--accent);  color: #fff; }
+    .btn-teal     { background: var(--accent2); color: #000; }
+    .btn-success  { background: var(--success);  color: #fff; }
+    .btn-danger   { background: var(--danger);   color: #fff; }
+    .btn-ghost    { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.82rem; }
+
+    /* ── FLIGHT CARD ── */
+    .flight-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 0.75rem;
+      transition: border-color .2s;
+    }
+    .flight-card:hover { border-color: var(--accent); }
+    .flight-route {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 0.6rem;
+    }
+    .flight-route .arrow { color: var(--accent2); }
+    .flight-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .flight-meta strong { color: var(--text); }
+    .price-tag {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+    .seats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(16,185,129,0.12);
+      color: var(--success);
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .seats-badge.low { background: rgba(245,158,11,0.12); color: var(--warning); }
+    .seats-badge.none { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+    /* ── BOOKING CARD ── */
+    .booking-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .booking-ref {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent2);
+      margin-bottom: 0.5rem;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-confirmed { background: rgba(16,185,129,.15); color: var(--success); }
+    .status-cancelled { background: rgba(239,68,68,.15); color: var(--danger); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .alert-error   { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+    .alert-success { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: #6ee7b7; }
+    .alert-info    { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3); color: #93c5fd; }
+
+    /* ── MISC ── */
+    .empty {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .pill {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .loading { text-align: center; color: var(--muted); padding: 2rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 500px) { .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ───────────── NAV ───────────── -->
+<nav>
+  <a class="brand" href="#">Flight<span>Hub</span></a>
+  <button class="active" onclick="showSection('flights')">✈ Flights</button>
+  <button onclick="showSection('bookings')">📋 Bookings</button>
+  <button onclick="showSection('manage')">🔧 Manage</button>
+</nav>
+
+<!-- ───────────── FLIGHTS SECTION ───────────── -->
+<div id="section-flights" class="section active">
+  <div class="container">
+    <h1>Flight Search</h1>
+    <p class="subtitle">Find and book available flights for passengers</p>
+
+    <!-- Search filters -->
+    <div class="card">
+      <div class="search-grid">
+        <div class="field">
+          <label>From</label>
+          <input id="f-origin" type="text" placeholder="e.g. Karachi" />
+        </div>
+        <div class="field">
+          <label>To</label>
+          <input id="f-dest" type="text" placeholder="e.g. Lahore" />
+        </div>
+        <div class="field">
+          <label>Departure Date</label>
+          <input id="f-date" type="date" />
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="searchFlights()">🔍 Search Flights</button>
+        <button class="btn btn-ghost" onclick="clearSearch()">Clear</button>
+      </div>
+    </div>
+
+    <div id="flights-alert"></div>
+    <div id="flights-list"><div class="loading">Loading flights…</div></div>
+  </div>
+</div>
+
+<!-- ───────────── BOOKINGS SECTION ───────────── -->
+<div id="section-bookings" class="section">
+  <div class="container">
+    <h1>Find Bookings</h1>
+    <p class="subtitle">Search by passenger name or booking reference</p>
+
+    <div class="card">
+      <div class="search-grid">
+        <div class="field">
+          <label>Passenger Name</label>
+          <input id="b-name" type="text" placeholder="e.g. Ali Hassan" />
+        </div>
+        <div class="field">
+          <label>Booking Reference</label>
+          <input id="b-ref" type="text" placeholder="e.g. FH-A1B2C3" style="text-transform:uppercase" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="searchBookings()">🔍 Find Bookings</button>
+    </div>
+
+    <div id="bookings-alert"></div>
+    <div id="bookings-list"></div>
+  </div>
+</div>
+
+<!-- ───────────── MANAGE SECTION ───────────── -->
+<div id="section-manage" class="section">
+  <div class="container">
+    <h1>Manage Flights</h1>
+    <p class="subtitle">Add new flights to the system</p>
+
+    <div class="card">
+      <h2 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:1.2rem;color:var(--white)">Add New Flight</h2>
+      <div id="manage-alert"></div>
+
+      <div class="grid-2" style="gap:1rem;margin-bottom:1rem">
+        <div class="field"><label>Flight Number</label><input id="m-fn" type="text" placeholder="FH999" /></div>
+        <div class="field"><label>Price per Seat (PKR)</label><input id="m-price" type="number" min="0" placeholder="8500" /></div>
+        <div class="field"><label>Origin</label><input id="m-origin" type="text" placeholder="Karachi" /></div>
+        <div class="field"><label>Destination</label><input id="m-dest" type="text" placeholder="Lahore" /></div>
+        <div class="field"><label>Departure</label><input id="m-dep" type="datetime-local" /></div>
+        <div class="field"><label>Arrival</label><input id="m-arr" type="datetime-local" /></div>
+        <div class="field"><label>Total Seats</label><input id="m-seats" type="number" min="1" placeholder="150" /></div>
+      </div>
+      <button class="btn btn-success" onclick="addFlight()">+ Add Flight</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── BOOK MODAL ───────────── -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal">
+    <h2>Book a Seat</h2>
+    <div id="book-flight-info" class="alert alert-info" style="margin-bottom:1.2rem"></div>
+    <div id="book-alert"></div>
+
+    <div class="field" style="margin-bottom:1rem">
+      <label>Passenger Full Name</label>
+      <input id="bk-name" type="text" placeholder="Ali Hassan" />
+    </div>
+    <div class="field" style="margin-bottom:1rem">
+      <label>Passport Number</label>
+      <input id="bk-passport" type="text" placeholder="AB1234567" style="text-transform:uppercase" />
+    </div>
+    <div class="field" style="margin-bottom:1rem">
+      <label>Seat Number</label>
+      <input id="bk-seat" type="text" placeholder="12A" style="text-transform:uppercase" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('book-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── SUCCESS MODAL ───────────── -->
+<div class="modal-overlay" id="success-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+    <h2 style="margin-bottom:0.5rem">Booking Confirmed!</h2>
+    <div id="success-content"></div>
+    <div class="modal-actions" style="justify-content:center;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="closeModal('success-modal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:8000/api";
+
+// ── navigation ──────────────────────────────────────────────────
+const navBtns = document.querySelectorAll("nav button");
+function showSection(name) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  navBtns.forEach(b => b.classList.remove("active"));
+  document.getElementById("section-" + name).classList.add("active");
+  event.target.classList.add("active");
+  if (name === "flights") loadFlights();
+}
+
+// ── helpers ─────────────────────────────────────────────────────
+function setAlert(id, msg, type = "error") {
+  const el = document.getElementById(id);
+  el.innerHTML = msg ? `<div class="alert alert-${type}">${msg}</div>` : "";
+}
+function fmt(dt) {
+  return new Date(dt).toLocaleString("en-PK", {
+    day:"2-digit", month:"short", year:"numeric",
+    hour:"2-digit", minute:"2-digit"
+  });
+}
+function duration(mins) {
+  const h = Math.floor(mins/60), m = mins%60;
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
+function seatsBadge(n) {
+  const cls = n === 0 ? "none" : n <= 10 ? "low" : "";
+  const label = n === 0 ? "Sold Out" : `${n} seats left`;
+  return `<span class="seats-badge ${cls}">● ${label}</span>`;
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+
+// ── current booking context ─────────────────────────────────────
+let _bookingFlight = null;
+
+// ── FLIGHTS ─────────────────────────────────────────────────────
+async function loadFlights() {
+  document.getElementById("flights-list").innerHTML = '<div class="loading">Loading…</div>';
+  try {
+    const r = await fetch(`${API}/flights/`);
+    const flights = await r.json();
+    renderFlights(flights);
+  } catch(e) {
+    document.getElementById("flights-list").innerHTML =
+      '<div class="alert alert-error">Cannot reach API. Is the backend running on port 8000?</div>';
+  }
+}
+
+async function searchFlights() {
+  const origin = document.getElementById("f-origin").value.trim();
+  const dest   = document.getElementById("f-dest").value.trim();
+  const date   = document.getElementById("f-date").value;
+  const params = new URLSearchParams();
+  if (origin) params.set("origin", origin);
+  if (dest)   params.set("destination", dest);
+  if (date)   params.set("departure_date", date);
+
+  setAlert("flights-alert", "");
+  document.getElementById("flights-list").innerHTML = '<div class="loading">Searching…</div>';
+  try {
+    const r = await fetch(`${API}/flights/?${params}`);
+    const flights = await r.json();
+    if (flights.length === 0) setAlert("flights-alert", "No flights found matching your criteria.", "info");
+    renderFlights(flights);
+  } catch(e) {
+    setAlert("flights-alert", "Search failed. Check backend connection.");
+  }
+}
+
+function clearSearch() {
+  ["f-origin","f-dest","f-date"].forEach(id => document.getElementById(id).value = "");
+  setAlert("flights-alert", "");
+  loadFlights();
+}
+
+function renderFlights(flights) {
+  const el = document.getElementById("flights-list");
+  if (!flights.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✈️</div><p>No flights to display</p></div>'; return; }
+  el.innerHTML = flights.map(f => `
+    <div class="flight-card">
+      <div class="card-row">
+        <div>
+          <div class="flight-route">
+            ${f.origin} <span class="arrow">→</span> ${f.destination}
+            <span class="pill">${f.flight_number}</span>
+          </div>
+          <div class="flight-meta">
+            <span>🕐 <strong>${fmt(f.departure_time)}</strong></span>
+            <span>🏁 <strong>${fmt(f.arrival_time)}</strong></span>
+            <span>⏱ ${duration(f.duration_minutes)}</span>
+            ${seatsBadge(f.available_seats)}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="price-tag">PKR ${f.price_per_seat.toLocaleString()}</div>
+          <div style="margin-top:.6rem">
+            ${f.available_seats > 0
+              ? `<button class="btn btn-teal btn-sm" onclick="openBookModal(${JSON.stringify(JSON.stringify(f))})">Book →</button>`
+              : `<span class="status-badge status-cancelled" style="padding:.3rem .8rem">Sold Out</span>`}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ── BOOKING MODAL ────────────────────────────────────────────────
+function openBookModal(fJson) {
+  _bookingFlight = JSON.parse(fJson);
+  document.getElementById("book-flight-info").textContent =
+    `${_bookingFlight.flight_number}: ${_bookingFlight.origin} → ${_bookingFlight.destination} · ${fmt(_bookingFlight.departure_time)}`;
+  ["bk-name","bk-passport","bk-seat"].forEach(id => document.getElementById(id).value = "");
+  setAlert("book-alert", "");
+  document.getElementById("book-modal").classList.add("open");
+}
+
+async function submitBooking() {
+  const name     = document.getElementById("bk-name").value.trim();
+  const passport = document.getElementById("bk-passport").value.trim().toUpperCase();
+  const seat     = document.getElementById("bk-seat").value.trim().toUpperCase();
+
+  if (!name || !passport || !seat) { setAlert("book-alert", "All fields are required."); return; }
+
+  try {
+    const r = await fetch(`${API}/bookings/`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ flight_id: _bookingFlight.id, passenger_name: name, passport_number: passport, seat_number: seat })
+    });
+    const data = await r.json();
+    if (!r.ok) { setAlert("book-alert", data.detail || "Booking failed."); return; }
+
+    closeModal("book-modal");
+    document.getElementById("success-content").innerHTML = `
+      <p style="color:var(--muted);margin-bottom:.5rem">Booking Reference</p>
+      <p style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2)">${data.reference}</p>
+      <p style="margin-top:.5rem;color:var(--muted)">${data.passenger_name} · Seat ${data.seat_number}</p>
+      <p style="color:var(--muted)">${_bookingFlight.origin} → ${_bookingFlight.destination}</p>
+    `;
+    document.getElementById("success-modal").classList.add("open");
+    loadFlights(); // refresh seat counts
+  } catch(e) {
+    setAlert("book-alert", "Network error. Try again.");
+  }
+}
+
+// ── BOOKINGS SEARCH ──────────────────────────────────────────────
+async function searchBookings() {
+  const name = document.getElementById("b-name").value.trim();
+  const ref  = document.getElementById("b-ref").value.trim().toUpperCase();
+  if (!name && !ref) { setAlert("bookings-alert", "Enter a passenger name or booking reference.", "info"); return; }
+
+  setAlert("bookings-alert", "");
+  document.getElementById("bookings-list").innerHTML = '<div class="loading">Searching…</div>';
+
+  const params = new URLSearchParams();
+  if (name) params.set("passenger_name", name);
+  if (ref)  params.set("reference", ref);
+
+  try {
+    const r = await fetch(`${API}/bookings/?${params}`);
+    const data = await r.json();
+    if (!r.ok) { setAlert("bookings-alert", data.detail || "Search failed."); document.getElementById("bookings-list").innerHTML = ""; return; }
+    renderBookings(data);
+  } catch(e) {
+    setAlert("bookings-alert", "Network error.");
+  }
+}
+
+function renderBookings(bookings) {
+  const el = document.getElementById("bookings-list");
+  if (!bookings.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>No bookings found</p></div>'; return; }
+  el.innerHTML = bookings.map(b => `
+    <div class="booking-card">
+      <div class="card-row">
+        <div>
+          <div class="booking-ref">${b.reference}</div>
+          <div class="flight-meta">
+            <span><strong>${b.flight.origin} → ${b.flight.destination}</strong></span>
+            <span>${b.flight.flight_number}</span>
+            <span>🕐 ${fmt(b.flight.departure_time)}</span>
+          </div>
+          <div class="flight-meta" style="margin:0">
+            <span>👤 ${b.passenger_name}</span>
+            <span>🎫 Seat ${b.seat_number}</span>
+            <span>🛂 ${b.passport_number}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <span class="status-badge status-${b.status}">${b.status.toUpperCase()}</span>
+          ${b.status === "confirmed"
+            ? `<div style="margin-top:.6rem"><button class="btn btn-danger btn-sm" onclick="cancelBooking('${b.reference}')">Cancel</button></div>`
+            : ""}
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function cancelBooking(ref) {
+  if (!confirm(`Cancel booking ${ref}?`)) return;
+  try {
+    const r = await fetch(`${API}/bookings/${ref}`, { method: "DELETE" });
+    const data = await r.json();
+    if (!r.ok) { setAlert("bookings-alert", data.detail || "Cancellation failed."); return; }
+    setAlert("bookings-alert", `✅ ${data.message}`, "success");
+    searchBookings(); // refresh
+  } catch(e) {
+    setAlert("bookings-alert", "Network error.");
+  }
+}
+
+// ── MANAGE ──────────────────────────────────────────────────────
+async function addFlight() {
+  const body = {
+    flight_number:  document.getElementById("m-fn").value.trim().toUpperCase(),
+    origin:         document.getElementById("m-origin").value.trim(),
+    destination:    document.getElementById("m-dest").value.trim(),
+    departure_time: document.getElementById("m-dep").value,
+    arrival_time:   document.getElementById("m-arr").value,
+    price_per_seat: parseFloat(document.getElementById("m-price").value),
+    total_seats:    parseInt(document.getElementById("m-seats").value),
+  };
+  if (!body.flight_number || !body.origin || !body.destination || !body.departure_time || !body.arrival_time) {
+    setAlert("manage-alert", "All fields are required."); return;
+  }
+  try {
+    const r = await fetch(`${API}/flights/`, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (!r.ok) { setAlert("manage-alert", data.detail || "Failed to add flight."); return; }
+    setAlert("manage-alert", `✅ Flight ${data.flight_number} added successfully (ID: ${data.id})`, "success");
+    ["m-fn","m-origin","m-dest","m-dep","m-arr","m-price","m-seats"].forEach(id => document.getElementById(id).value = "");
+  } catch(e) {
+    setAlert("manage-alert", "Network error.");
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+loadFlights();
+</script>
+</body>
+</html>
